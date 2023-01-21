@@ -137,7 +137,7 @@ Shape{{
         path_name = f'"$({footprint_info.model_base_variable})/{footprint_info.footprint_name}.wrl"'
     else:
         dirname = os.getcwd().replace("\\", "/").replace("/footprint", "")
-        path_name = f'{dirname}/{filename}'
+        path_name = f"{dirname}/{filename}"
 
     kicad_mod.append(
         Model(
