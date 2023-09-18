@@ -52,6 +52,7 @@ def create_footprint(
             self.footprint_lib = footprint_lib
             self.model_base_variable = model_base_variable
             self.origin = origin
+            self.via_list = []
 
     footprint_info = footprint_info(
         footprint_name=footprint_name,
@@ -59,6 +60,7 @@ def create_footprint(
         footprint_lib=footprint_lib,
         model_base_variable=model_base_variable,
         origin=translation,
+
     )
 
     # for each line in data : use the appropriate handler
@@ -72,6 +74,8 @@ def create_footprint(
             logging.warning(f"footprint : model not in handler :  {model}")
         else:
             handlers.get(model)(args[1:], kicad_mod, footprint_info)
+
+    addVias(kicad_mod, footprint_info.via_list)
 
     kicad_mod.insert(Translation(-mil2mm(translation[0]), -mil2mm(translation[1])))
 

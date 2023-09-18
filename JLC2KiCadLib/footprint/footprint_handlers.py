@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 from math import pow, acos, pi
 import re
 
@@ -19,6 +20,7 @@ __all__ = [
     "h_HOLE",
     "h_TEXT",
     "mil2mm",
+    "addVias"
 ]
 
 layer_correspondance = {
@@ -40,6 +42,61 @@ layer_correspondance = {
 
 def mil2mm(data):
     return float(data) / 3.937
+
+
+def circle_rectangle_overlap(Cx, Cy, r, Rx, Ry, W, H):
+    # Calculate the half-width and half-height of the rectangle
+    half_width = W / 2
+    half_height = H / 2
+
+    # Calculate the distance between the circle's center and the rectangle's center
+    distance_x = abs(Cx - Rx)
+    distance_y = abs(Cy - Ry)
+
+    # Calculate the distance between the circle's center and the closest point on the rectangle
+    closest_x = max(0, distance_x - half_width)
+    closest_y = max(0, distance_y - half_height)
+
+    # Check if the distance is less than or equal to the circle's radius
+    return closest_x ** 2 + closest_y ** 2 <= r ** 2
+
+
+def addVias(kicad_mod: Footprint, via_list):
+    for data in via_list:
+        # Vias are just pads with a hole in the middle
+        # VIA~4051.9676~3048.0322~2.4~~0.6~gge406~0#
+
+        X = mil2mm(data[0])
+        Y = mil2mm(data[1])
+        diameter = mil2mm(data[2])
+        drill = mil2mm(data[3]) * 2
+        pad_type = Pad.TYPE_THT
+        pad_layer = ['*.Cu', 'F.Mask']
+        pad_number = ""
+        # check if the via is on top of a pad or not
+
+        for i in kicad_mod.getNormalChilds():
+            if type(i) == Pad and i.type == Pad.TYPE_SMT and i.shape == Pad.SHAPE_RECT:
+                # check if via is on top of pad
+                pad_size = i.size
+                pad_position = i.at
+                if circle_rectangle_overlap(
+                        X, Y, diameter / 2, pad_position[0], pad_position[1], pad_size[0], pad_size[1]
+                ):
+                    pad_number = i.number
+
+        kicad_mod.append(
+            Pad(
+                number=pad_number,
+                type=pad_type,
+                shape=Pad.SHAPE_CIRCLE,
+                at=[X, Y],
+                size=diameter,
+                rotation=0,
+                drill=drill,
+                layers=pad_layer,
+            )
+        )
 
 
 def h_TRACK(data, kicad_mod, footprint_info):
@@ -364,9 +421,7 @@ def h_SVGNODE(data, kicad_mod, footprint_info):
 
 
 def h_VIA(data, kicad_mod, footprint_info):
-    logging.warning(
-        "VIA not supported. Via are often added for better heat dissipation. Be careful and read datasheet if needed."
-    )
+    footprint_info.via_list.append(data)
 
 
 def h_RECT(data, kicad_mod, footprint_info):
