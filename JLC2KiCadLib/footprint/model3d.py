@@ -49,6 +49,12 @@ def get_StepModel(
             path_name = f'"{footprint_info.model_base_variable}/{footprint_info.footprint_name}.step"'
         else:
             path_name = f'"$({footprint_info.model_base_variable})/{footprint_info.footprint_name}.step"'
+    elif footprint_info.kiprjmod:
+        # Get relative path
+        relpath = os.path.relpath(filename, footprint_info.kiprjmod).replace("\\", "/")
+        logging.info("STEP model relative path from kiprjmod is: " + relpath)
+        km = "${KIPRJMOD}"
+        path_name = f'"{km}/{relpath}"'
     else:
         path_name = filename
 
@@ -185,6 +191,12 @@ Shape{{
             path_name = f'"{footprint_info.model_base_variable}/{footprint_info.footprint_name}.wrl"'
         else:
             path_name = f'"$({footprint_info.model_base_variable})/{footprint_info.footprint_name}.wrl"'
+    elif footprint_info.kiprjmod:
+        # Get relative path
+        relpath = os.path.relpath(filename, footprint_info.kiprjmod).replace("\\", "/")
+        logging.info("WRL model relative path from kiprjmod is: " + relpath)
+        km = "${KIPRJMOD}"
+        path_name = f'"{km}/{relpath}"'
     else:
         dirname = os.getcwd().replace("\\", "/").replace("/footprint", "")
         if os.path.isabs(filename):

@@ -16,6 +16,7 @@ def create_footprint(
     model_dir,
     skip_existing,
     models,
+    kiprjmod,
 ):
     logging.info("creating footprint ...")
 
@@ -49,6 +50,7 @@ def create_footprint(
             model_dir,
             origin,
             models,
+            kiprjmod,
         ):
             self.max_X, self.max_Y, self.min_X, self.min_Y = (
                 -10000,
@@ -63,6 +65,7 @@ def create_footprint(
             self.model_dir = model_dir
             self.origin = origin
             self.models = models
+            self.kiprjmod = kiprjmod
 
     footprint_info = footprint_info(
         footprint_name=footprint_name,
@@ -72,6 +75,7 @@ def create_footprint(
         model_dir=model_dir,
         origin=translation,
         models=models,
+        kiprjmod=kiprjmod,
     )
 
     # for each line in data : use the appropriate handler
