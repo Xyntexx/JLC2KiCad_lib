@@ -6,6 +6,7 @@ import os
 from KicadModTree import *
 from .footprint_handlers import *
 
+from ..__version__ import __version__
 
 def create_footprint(
     footprint_component_uuid,
@@ -120,17 +121,6 @@ def create_footprint(
     )
     kicad_mod.append(
         Text(
-            type="user",
-            text="REF**",
-            at=[
-                (footprint_info.min_X + footprint_info.max_X) / 2,
-                footprint_info.max_Y + 4,
-            ],
-            layer="F.Fab",
-        )
-    )
-    kicad_mod.append(
-        Text(
             type="value",
             text=footprint_name,
             at=[
@@ -138,6 +128,33 @@ def create_footprint(
                 footprint_info.max_Y + 2,
             ],
             layer="F.Fab",
+        )
+    )
+
+    # append JLCPCB id
+
+    kicad_mod.append(
+        Text(
+            type="user",
+            text=component_id,
+            at=[
+                (footprint_info.min_X + footprint_info.max_X) / 2,
+                footprint_info.max_Y + 4,
+            ],
+            layer="F.SilkS",
+        )
+    )
+
+    # append current library version
+    kicad_mod.append(
+        Text(
+            type="user",
+            text="Created with JLC2KiCadLib " + __version__,
+            at=[
+                (footprint_info.min_X + footprint_info.max_X) / 2,
+                footprint_info.max_Y + 6,
+            ],
+            layer="F.SilkS",
         )
     )
 
